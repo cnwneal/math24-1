@@ -10,10 +10,7 @@ def operatorDisplay(o):
     if o == op.mul: return '*'
     if o == op.div: return '/'
 
-solvedOrders = set() # set of tuples of numbers, to optimize and deduplicate
-
-def getSolutions(nums):
-    global solvedOrders
+def getSolutions(nums,solvedOrders=set()):
     operators = set([op.add,op.sub,op.mul,op.div])
     uniqueOperatorSets = list(itertools.permutations(operators,3))
     for opSet in uniqueOperatorSets:
@@ -32,11 +29,11 @@ def getSolutions(nums):
     return solvedOrders
 
 def main():
-    global solvedOrders
+    solvedOrders = set() # set of tuples of numbers, to optimize and deduplicate
     for number in xrange(10000):
         numbers = [(number/1000)%10,(number/100)%10,(number/10)%10,number%10]
         #print('%s %s' % (number,numbers))
-        getSolutions(numbers)
+        getSolutions(numbers,solvedOrders)
     for nums,opSet in solvedOrders:
         print('(%s%s%s)%s(%s%s%s) == 24' % (nums[0],operatorDisplay(opSet[0]),nums[1],operatorDisplay(opSet[2]),nums[2],operatorDisplay(opSet[1]),nums[3]))
     print(len(solvedOrders))
