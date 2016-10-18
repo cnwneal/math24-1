@@ -1,8 +1,7 @@
 import itertools
 import operator as op
+import sys
 
-MIN_VALUE = 0
-MAX_VALUE = 10
 
 def operatorDisplay(o):
     if o == op.add: return '+'
@@ -28,24 +27,12 @@ def getSolutions(nums,solvedOrders={}):
                 continue
     return solvedOrders
 
-def main():
-    # dict of solutions to optimize and deduplicate
-    # keys are tuples of numbers, value is set of operation orders
-    solvedOrders = {}
-    # avoid same number set showing in diff orders
-    # 0, 0, 4, 6 was first example hit, generated in multiple orders
-    uniqueNums = set()
-    # tally unique solutions
-    count = 0
-    for n1,n2,n3,n4 in itertools.combinations_with_replacement(xrange(MIN_VALUE,MAX_VALUE),4):
-        numbers = ( n1,n2,n3,n4 )
-        if tuple(sorted(numbers)) in uniqueNums:
-            continue
-        uniqueNums.add(tuple(sorted(numbers)))
-        getSolutions(numbers,solvedOrders)
-    for nums in sorted(solvedOrders.keys()):
+def printSolutions(solutions):
+    if len(solutions) == 0:
+        print('No solution')
+    for nums in sorted(solutions.keys()):
         print(str(nums))
-        for numbers,opSet in solvedOrders[nums]:
+        for numbers,opSet in solutions[nums]:
             print('\t(%s%s%s)%s(%s%s%s) == 24' % (
                 numbers[0],
                 operatorDisplay(opSet[0]),
@@ -55,7 +42,50 @@ def main():
                 operatorDisplay(opSet[1]),
                 numbers[3]
             ))
-            count += 1
+
+def main():
+    '''
+    usage:
+       python math24.py
+          will print all solutions for values minVal=0 to maxVal=10
+       python math24.py minVal maxVal
+          will print all solutions for values in minVal,maxVal range provided
+       python math24.py 5 6 6 7
+          will print all solutions for 4 values provided
+    '''
+    if len(sys.argv) == 5:
+        solutions = getSolutions(
+            (int(sys.argv[1]),
+             int(sys.argv[2]),
+             int(sys.argv[3]),
+             int(sys.argv[4])
+            ))
+        printSolutions(solutions)
+        return
+    
+    minVal = 0
+    maxVal = 10
+    if len(sys.argv) == 3:
+        minVal = int(sys.argv[1])
+        maxVal = int(sys.argv[2])
+    # dict of solutions to optimize and deduplicate
+    # keys are tuples of numbers, value is set of operation orders
+    solvedOrders = {}
+    # avoid same number set showing in diff orders
+    # 0, 0, 4, 6 was first example hit, generated in multiple orders
+    uniqueNums = set()
+    numRange = xrange(minVal,maxVal)
+    for n1,n2,n3,n4 in itertools.combinations_with_replacement(numRange,4):
+        numbers = ( n1,n2,n3,n4 )
+        if tuple(sorted(numbers)) in uniqueNums:
+            continue
+        uniqueNums.add(tuple(sorted(numbers)))
+        getSolutions(numbers,solvedOrders)
+    printSolutions(solvedOrders)
+    # tally unique solutions
+    count = 0
+    for nums in sorted(solvedOrders.keys()):
+        count += len(solvedOrders[nums])
     print('\nThere are %s solutions' % count)
 
 if __name__ == '__main__':
