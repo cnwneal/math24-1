@@ -1,15 +1,14 @@
+'''
+Code to find Math24 solutions to a supplied number set and
+also to generate sets and solutions
+'''
+
 import itertools
 import operator as op
 import sys
 
 
-def operatorDisplay(o):
-    if o == op.add: return '+'
-    if o == op.sub: return '-'
-    if o == op.mul: return '*'
-    if o == op.div: return '/'
-
-def getSolutions(nums,solvedOrders={}):
+def getSolutionsSingleSet(nums,solvedOrders={}):
     operators = set([op.add,op.sub,op.mul,op.div])
     uniqueOperatorSets = list(itertools.permutations(operators,3))
     for opSet in uniqueOperatorSets:
@@ -26,6 +25,28 @@ def getSolutions(nums,solvedOrders={}):
             except ZeroDivisionError:
                 continue
     return solvedOrders
+
+def getSolutionsMultiSets(minVal,maxVal):
+    # dict of solutions to optimize and deduplicate
+    # keys are tuples of numbers, value is set of operation orders
+    solvedOrders = {}
+    # avoid same number set showing in diff orders
+    # 0, 0, 4, 6 was first example hit, generated in multiple orders
+    uniqueNums = set()
+    numRange = xrange(minVal,maxVal)
+    for n1,n2,n3,n4 in itertools.combinations_with_replacement(numRange,4):
+        numbers = ( n1,n2,n3,n4 )
+        if tuple(sorted(numbers)) in uniqueNums:
+            continue
+        uniqueNums.add(tuple(sorted(numbers)))
+        getSolutionsSingleSet(numbers,solvedOrders)
+    return solvedOrders
+
+def operatorDisplay(o):
+    if o == op.add: return '+'
+    if o == op.sub: return '-'
+    if o == op.mul: return '*'
+    if o == op.div: return '/'
 
 def printSolutions(solutions):
     if len(solutions) == 0:
@@ -54,7 +75,7 @@ def main():
           will print all solutions for 4 values provided
     '''
     if len(sys.argv) == 5:
-        solutions = getSolutions(
+        solutions = getSolutionsSingleSet(
             (int(sys.argv[1]),
              int(sys.argv[2]),
              int(sys.argv[3]),
@@ -68,19 +89,7 @@ def main():
     if len(sys.argv) == 3:
         minVal = int(sys.argv[1])
         maxVal = int(sys.argv[2])
-    # dict of solutions to optimize and deduplicate
-    # keys are tuples of numbers, value is set of operation orders
-    solvedOrders = {}
-    # avoid same number set showing in diff orders
-    # 0, 0, 4, 6 was first example hit, generated in multiple orders
-    uniqueNums = set()
-    numRange = xrange(minVal,maxVal)
-    for n1,n2,n3,n4 in itertools.combinations_with_replacement(numRange,4):
-        numbers = ( n1,n2,n3,n4 )
-        if tuple(sorted(numbers)) in uniqueNums:
-            continue
-        uniqueNums.add(tuple(sorted(numbers)))
-        getSolutions(numbers,solvedOrders)
+    solvedOrders = getSolutionsMultiSets(minVal,maxVal)
     printSolutions(solvedOrders)
     # tally unique solutions
     count = 0
