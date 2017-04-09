@@ -85,7 +85,7 @@ def main():
         return
     
     minVal = 0
-    maxVal = 10
+    maxVal = 12
     if len(sys.argv) == 3:
         minVal = int(sys.argv[1])
         maxVal = int(sys.argv[2])
